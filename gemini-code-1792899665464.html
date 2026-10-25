@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peta Petualangan Pola Dapur Bubu</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bubu: {
+                            pink: '#FF85A1',
+                            yellow: '#FFD166',
+                            green: '#06D6A0',
+                            blue: '#118AB2',
+                            dark: '#073B4C',
+                            cream: '#FFF9EC',
+                            brown: '#8D5B4C',
+                            purple: '#A2D2FF'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #247ba0 0%, #118ab2 50%, #06d6a0 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, .font-fun {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Animated Clouds */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 50px;
+            opacity: 0.9;
+            animation: floatClouds linear infinite;
+            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.08));
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 50%;
+        }
+        .cloud::before { width: 55px; height: 55px; top: -22px; left: 15px; }
+        .cloud::after { width: 45px; height: 45px; top: -18px; right: 15px; }
+
+        @keyframes floatClouds {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(120vw); }
+        }
+
+        /* Swaying Nature Animations */
+        .sway-item {
+            transform-origin: bottom center;
+            animation: sway 3.5s ease-in-out infinite alternate;
+        }
+        @keyframes sway {
+            0% { transform: rotate(-4deg) scale(1); }
+            100% { transform: rotate(5deg) scale(1.03); }
+        }
+
+        /* Bubu Bear Character Movement Transition */
+        #bubu-character {
+            transition: left 1.05s ease-in-out, top 1.05s ease-in-out;
+            z-index: 35;
+        }
+
+        .bounce-gentle {
+            animation: bounceGentle 1.5s infinite ease-in-out;
+        }
+
+        @keyframes bounceGentle {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.08); }
+        }
+
+        .node-active-glow {
+            animation: nodeGlow 1.8s infinite alternate;
+        }
+
+        @keyframes nodeGlow {
+            0% { filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.8)); transform: scale(1); }
+            100% { filter: drop-shadow(0 0 24px rgba(255, 133, 161, 1)); transform: scale(1.12); }
+        }
+
+        /* Glassmorphism & Modal Backdrop */
+        .modal-backdrop {
+            background-color: rgba(7, 59, 76, 0.82);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Node Button Hover Effect */
+        .node-btn { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .node-btn:hover { transform: scale(1.22) translateY(-6px); z-index: 40; }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #FFF9EC; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FF85A1; border-radius: 10px; }
+
+        :root { color-scheme: light; }
+        body {
+            background:
+              radial-gradient(circle at 12% 14%, rgba(255,255,255,.32) 0 3px, transparent 4px),
+              radial-gradient(circle at 82% 24%, rgba(255,255,255,.22) 0 5px, transparent 6px),
+              linear-gradient(145deg, #6dd5ed 0%, #8ee3c8 48%, #ffe7a3 100%);
+            background-size: 54px 54px, 76px 76px, auto;
+        }
+        header, footer { box-shadow: 0 12px 28px rgba(34, 76, 89, .16); }
+        #map-container {
+            height: clamp(760px, 112vh, 1080px) !important;
+            border: 7px solid rgba(255,255,255,.96);
+            background:
+              radial-gradient(ellipse at 18% 20%, rgba(255,255,255,.42), transparent 22%),
+              radial-gradient(ellipse at 82% 70%, rgba(255,255,255,.34), transparent 24%),
+              linear-gradient(180deg, #9be7ff 0%, #b4f0d4 48%, #ffedb6 100%);
+            box-shadow: 0 18px 38px rgba(42, 96, 100, .22), inset 0 0 0 5px rgba(255,255,255,.3);
+        }
+        .cloud { opacity: .86; filter: drop-shadow(0 8px 6px rgba(53,100,112,.10)); }
+        .node-btn { filter: drop-shadow(0 6px 4px rgba(67,83,90,.12)); }
+        .node-btn > div {
+            outline: 4px solid rgba(255,255,255,.55);
+            box-shadow: 0 8px 0 rgba(65, 77, 88, .13), 0 14px 24px rgba(38, 75, 88, .18);
+        }
+        .node-btn:hover > div { filter: saturate(1.12) brightness(1.04); }
+        #bubu-character { filter: drop-shadow(0 8px 8px rgba(61, 68, 71, .18)); }
+        #bubu-character > div {
+            border: 3px solid #fff;
+            background: linear-gradient(145deg, #a96c40, #74401f);
+            box-shadow: 0 7px 0 rgba(77, 45, 27, .18), 0 12px 20px rgba(68,49,39,.2);
+        }
+        .bounce-gentle { animation-duration: 2.1s; }
+        .node-active-glow { animation: friendlyGlow 1.9s ease-in-out infinite alternate; }
+        @keyframes friendlyGlow {
+            from { filter: drop-shadow(0 0 5px rgba(255, 190, 60, .6)); }
+            to { filter: drop-shadow(0 0 17px rgba(255, 119, 153, .85)); }
+        }
+        .modal-backdrop { background: rgba(26, 54, 67, .72); backdrop-filter: blur(9px); }
+        #menu-awal-modal > div, #mission-modal > div, #finish-modal > div, #canva-modal > div {
+            box-shadow: 0 24px 70px rgba(13, 48, 62, .32);
+        }
+        button { -webkit-tap-highlight-color: transparent; }
+        button:focus-visible, input:focus-visible { outline: 4px solid #22c55e; outline-offset: 3px; }
+        @media (max-width: 640px) {
+            body { padding: 8px !important; }
+            header { padding: 12px !important; }
+            #map-container { height: 850px !important; border-width: 5px; }
+            #map-container > svg { opacity: .86; }
+            .node-btn > div { transform: scale(.88); }
+            .node-btn:hover { transform: scale(1.06) translateY(-3px); }
+            footer { gap: 8px; padding: 12px !important; }
+        }
+
+        #mission-modal > div { max-height: 96vh !important; }
+        #mission-modal .mission-content { padding: 10px 14px !important; gap: 10px !important; }
+        #pattern-container { min-height: 0 !important; gap: 8px !important; padding: 8px !important; }
+        .pattern-card {
+            min-width: 0;
+            min-height: 126px;
+            padding: 7px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+        .pattern-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        .pattern-pictures {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            align-content: center;
+            justify-items: center;
+            align-items: center;
+            gap: 1px;
+            flex: 1;
+            min-height: 0;
+        }
+        .pattern-item {
+            font-size: clamp(14px, 2.1vw, 23px);
+            line-height: 1.05;
+            display: block;
+            text-align: center;
+        }
+        .pattern-question {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            font-size: clamp(30px, 4vw, 44px);
+            animation: bounceGentle 1.5s infinite ease-in-out;
+        }
+        .pattern-hint {
+            font-size: 10px;
+            font-weight: 800;
+            color: #92400e;
+            padding: 3px;
+            background: rgba(253, 230, 138, .6);
+            border-radius: 6px;
+        }
+        #mission-modal .question-grid { gap: 7px !important; }
+        #mission-modal .question-card { padding: 8px !important; }
+        #mission-modal .spinner-panel { padding: 9px !important; }
+        #mission-modal .spinner-wheel { width: 112px !important; height: 112px !important; }
+        #wheel-canvas { width: 112px; height: 112px; }
+        #mission-modal .mission-footer { padding: 8px 14px !important; }
+        @media (max-height: 820px) {
+            #mission-modal > div { max-height: 98vh !important; }
+            #mission-modal .mission-content { padding: 7px 12px !important; gap: 7px !important; }
+            #mission-modal #pattern-container { padding: 6px !important; }
+            .pattern-card { min-height: 108px; padding: 5px 3px; }
+            #mission-modal .spinner-wheel { width: 92px !important; height: 92px !important; }
+            #wheel-canvas { width: 92px; height: 92px; }
+        }
+        @media (max-width: 640px) {
+            .pattern-card { min-height: 104px; padding: 5px 2px; }
+            .pattern-item { font-size: clamp(12px, 3vw, 18px); }
+            #mission-modal .mission-content { padding: 7px !important; }
+            #mission-modal .question-grid { grid-template-columns: 1fr !important; }
+            #mission-modal .spinner-wheel { width: 100px !important; height: 100px !important; }
+            #wheel-canvas { width: 100px; height: 100px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between items-center p-2 md:p-5 relative">
+
+    <!-- TOP HEADER -->
+    <header class="w-full max-w-5xl flex flex-wrap justify-between items-center bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl z-20 border-4 border-yellow-300 gap-3 mb-3">
+        <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 bg-amber-800 text-white rounded-full flex items-center justify-center text-2xl shadow-inner border-2 border-amber-600">
+                🐻
+            </div>
+            <div>
+                <h1 class="text-lg md:text-2xl font-bold text-bubu-dark leading-tight">Petualangan Pola Dapur Bubu</h1>
+                <p class="text-xs md:text-sm text-gray-600 font-semibold">Media Matematika Interaktif Kelas 4 SD</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-2 md:space-x-3 flex-wrap">
+            <button onclick="toggleMusic()" id="music-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5">
+                <span id="music-icon">🔊</span> <span id="music-text">Musik On</span>
+            </button>
+            <button onclick="playSFX('click'); openMenuAwal()" class="bg-pink-500 hover:bg-pink-600 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5">
+                <i class="fas fa-home"></i> <span>Menu Awal</span>
+            </button>
+            <button onclick="playSFX('click'); openStudentsModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5">
+                <i class="fas fa-user-edit"></i> <span>Daftar Siswa</span>
+            </button>
+            <button onclick="playSFX('click'); resetToStart()" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5">
+                <i class="fas fa-redo"></i> <span class="hidden sm:inline">Ulang Game</span>
+            </button>
+            <button onclick="playSFX('click'); openCanvaModal()" class="bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5">
+                <i class="fas fa-external-link-alt"></i> <span>Canva</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAP CONTAINER -->
+    <main id="map-container" class="w-full max-w-5xl h-[1050px] md:h-[1200px] bg-gradient-to-b from-sky-300 via-teal-200 via-emerald-300 to-amber-200 rounded-3xl shadow-2xl relative border-8 border-white overflow-hidden flex items-center justify-center my-2">
+        
+        <div class="cloud w-40 h-14 top-8" style="animation-duration: 28s; animation-delay: -3s;"></div>
+        <div class="cloud w-52 h-16 top-32" style="animation-duration: 38s; animation-delay: -18s;"></div>
+        <div class="cloud w-32 h-12 top-64" style="animation-duration: 22s; animation-delay: -9s;"></div>
+        <div class="cloud w-44 h-14 top-[500px]" style="animation-duration: 32s; animation-delay: -12s;"></div>
+
+        <div class="absolute top-12 left-8 text-6xl opacity-90 sway-item">🌳</div>
+        <div class="absolute top-48 right-10 text-5xl opacity-85 sway-item">🌲</div>
+        <div class="absolute top-[280px] left-12 text-4xl opacity-80">🌻</div>
+        <div class="absolute top-[380px] right-14 text-5xl opacity-90">🏡</div>
+        <div class="absolute top-[520px] left-10 text-4xl opacity-80">🌷</div>
+        <div class="absolute top-[650px] right-8 text-6xl opacity-90 sway-item">🌳</div>
+        <div class="absolute top-[820px] left-12 text-5xl opacity-85 sway-item">🌲</div>
+        <div class="absolute bottom-12 right-12 text-6xl opacity-90">🎂</div>
+
+        <!-- SVG Map Winding Path -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 1000 1200" preserveAspectRatio="none">
+            <path d="M 150,120 C 350,120 350,280 500,280 C 750,280 850,150 850,380 C 850,550 250,520 250,720 C 250,920 800,800 800,1020 C 800,1120 500,1120 500,1120" 
+                  fill="none" stroke="#B45309" stroke-width="46" stroke-linecap="round" stroke-linejoin="round" opacity="0.25"/>
+            <path d="M 150,120 C 350,120 350,280 500,280 C 750,280 850,150 850,380 C 850,550 250,520 250,720 C 250,920 800,800 800,1020 C 800,1120 500,1120 500,1120" 
+                  fill="none" stroke="#FDE047" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 150,120 C 350,120 350,280 500,280 C 750,280 850,150 850,380 C 850,550 250,520 250,720 C 250,920 800,800 800,1020 C 800,1120 500,1120 500,1120" 
+                  fill="none" stroke="#FFFFFF" stroke-width="7" stroke-dasharray="16 16" stroke-linecap="round"/>
+        </svg>
+
+        <!-- MAP NODES -->
+        <button onclick="clickNode('start')" id="node-start" class="node-btn absolute z-20 flex flex-col items-center" style="left: 15%; top: 10%;">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-emerald-500 border-4 border-white rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-xl">🚩</div>
+            <span class="mt-1 bg-white text-emerald-800 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full shadow-md border border-emerald-300">START</span>
+        </button>
+
+        <button onclick="clickNode('misi1')" id="node-misi1" class="node-btn absolute z-20 flex flex-col items-center node-active-glow" style="left: 50%; top: 23.3%;">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-amber-500 border-4 border-white rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-xl">🍩</div>
+            <span class="mt-1 bg-white text-amber-900 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full shadow-md border border-amber-300">Misi 1</span>
+        </button>
+
+        <button onclick="clickNode('misi2')" id="node-misi2" class="node-btn absolute z-20 flex flex-col items-center" style="left: 85%; top: 31.6%;">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-rose-500 border-4 border-white rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-xl">🍓</div>
+            <span class="mt-1 bg-white text-rose-900 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full shadow-md border border-rose-300">Misi 2</span>
+        </button>
+
+        <button onclick="clickNode('misi3')" id="node-misi3" class="node-btn absolute z-20 flex flex-col items-center" style="left: 25%; top: 60%;">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-pink-500 border-4 border-white rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-xl">🍓</div>
+            <span class="mt-1 bg-white text-pink-900 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full shadow-md border border-pink-300">Misi 3</span>
+        </button>
+
+        <button onclick="clickNode('misi4')" id="node-misi4" class="node-btn absolute z-20 flex flex-col items-center" style="left: 80%; top: 85%;">
+            <div class="w-16 h-16 md:w-20 md:h-20 bg-amber-600 border-4 border-white rounded-full flex items-center justify-center text-white text-2xl md:text-3xl font-bold shadow-xl">🍩</div>
+            <span class="mt-1 bg-white text-amber-950 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full shadow-md border border-amber-400">Misi 4</span>
+        </button>
+
+        <button onclick="clickNode('finish')" id="node-finish" class="node-btn absolute z-20 flex flex-col items-center" style="left: 50%; top: 93.3%;">
+            <div class="w-18 h-18 md:w-22 md:h-22 bg-purple-600 border-4 border-white rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-2xl">🏆</div>
+            <span class="mt-1 bg-yellow-300 text-purple-950 text-xs md:text-sm font-black px-4 py-1 rounded-full shadow-lg border-2 border-white">FINISH</span>
+        </button>
+
+        <!-- CHARACTER BUBU -->
+        <div id="bubu-character" class="absolute pointer-events-none flex flex-col items-center -translate-x-1/2 -translate-y-1/2" style="left: 15%; top: 10%;">
+            <div class="bg-amber-800 border-2 border-white rounded-full p-2.5 text-3xl md:text-4xl shadow-2xl bounce-gentle relative">
+                🐻
+                <div class="absolute -top-3 -right-2 bg-yellow-400 text-amber-950 text-[10px] font-black px-2 py-0.5 rounded-full border border-white">
+                    BUBU
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl border-2 border-teal-400 shadow-md flex items-center space-x-2">
+            <span class="text-xl">👇</span>
+            <p class="text-xs font-bold text-teal-900">Klik pos/misi di peta untuk menggerakkan Bubu!</p>
+        </div>
+    </main>
+
+    <!-- FOOTER STATUS BAR -->
+    <footer class="w-full max-w-5xl mt-2 bg-white/90 backdrop-blur-md rounded-2xl px-6 py-3 border-2 border-white flex justify-between items-center text-xs md:text-sm font-bold text-gray-700 shadow-lg">
+        <div>📍 Pos Bubu Saat Ini: <span id="current-pos-label" class="text-bubu-blue font-extrabold">START</span></div>
+        <div class="text-gray-500">Papan Pola Dapur Bubu • Kelas 4 SD</div>
+    </footer>
+
+    <!-- ================= MENU AWAL ================= -->
+    <div id="menu-awal-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-3">
+        <div class="bg-white w-full max-w-2xl rounded-3xl border-8 border-yellow-300 shadow-2xl flex flex-col overflow-hidden relative animate-bounce-in max-h-[92vh]">
+            
+            <div class="bg-gradient-to-r from-pink-500 via-amber-500 to-teal-500 text-white px-6 py-5 text-center relative">
+                <span class="text-5xl block mb-1">🐻🍳✨</span>
+                <h2 class="text-2xl md:text-3xl font-extrabold tracking-wide">Peta Petualangan Pola Dapur Bubu</h2>
+                <p class="text-xs md:text-sm text-amber-100 font-semibold mt-1">Media Pembelajaran Matematika Interaktif Kelas 4 SD</p>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 text-center space-y-2">
+                    <h3 class="text-base font-bold text-amber-900 flex items-center justify-center gap-2">
+                        <span>📖</span> Cerita Singkat Misi Bubu:
+                    </h3>
+                    <p class="text-xs md:text-sm text-gray-700 font-medium leading-relaxed">
+                        Bubu si Beruang ingin membuat kue lezat untuk pesta dapur! Namun resep rahasianya tersembunyi di balik <strong class="text-rose-600">Pola Matematika</strong>. Yuk, bantu Bubu menyelesaikan 4 Misi Pola agar kuenya selesai tepat waktu!
+                    </p>
+                </div>
+
+                <div class="bg-indigo-50/80 p-4 rounded-2xl border-2 border-indigo-200 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-sm md:text-base font-bold text-indigo-900 flex items-center gap-2">
+                            <span>👨‍🎓</span> Persiapkan Nama Siswa untuk Spinner Presenter
+                        </h3>
+                        <span class="text-xs font-extrabold text-indigo-600 bg-white px-2.5 py-1 rounded-full shadow-sm">
+                            Total: <span id="start-student-count">0</span> Siswa
+                        </span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="start-new-student-input" placeholder="Ketik nama siswa..." 
+                               class="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-xl text-xs md:text-sm focus:border-indigo-500 outline-none font-semibold">
+                        <button onclick="playSFX('click'); addStudentFromStart()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs md:text-sm shadow flex items-center gap-1">
+                            <i class="fas fa-plus"></i> Tambah
+                        </button>
+                    </div>
+
+                    <div id="start-student-list" class="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-2 bg-white rounded-xl border border-indigo-100">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-100 px-6 py-4 flex justify-between items-center border-t border-gray-200">
+                <p class="text-xs text-gray-500 font-bold hidden sm:block">Siap belajar sambil bermain?</p>
+                <button onclick="startAdventureWithMusic()" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-8 py-3 rounded-2xl font-black text-base shadow-lg transition transform hover:scale-105 flex items-center justify-center gap-2">
+                    <span>Mulai Petualangan! 🚀</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL SISWA ================= -->
+    <div id="students-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-white w-full max-w-lg rounded-3xl border-4 border-indigo-400 shadow-2xl flex flex-col overflow-hidden animate-bounce-in max-h-[85vh]">
+            <div class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">👨‍🎓</span>
+                    <h2 class="text-xl font-bold">Kelola Nama Siswa</h2>
+                </div>
+                <button onclick="playSFX('click'); closeStudentsModal()" class="w-8 h-8 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                <div class="flex gap-2">
+                    <input type="text" id="edit-student-input" placeholder="Tambah siswa baru..." 
+                           class="flex-1 px-4 py-2.5 border-2 border-gray-300 rounded-xl text-sm focus:border-indigo-500 outline-none font-semibold">
+                    <button onclick="playSFX('click'); addStudentFromModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow">
+                        Tambah
+                    </button>
+                </div>
+
+                <div class="border-2 border-gray-100 rounded-2xl p-3 bg-gray-50/50 max-h-60 overflow-y-auto space-y-2" id="full-student-list">
+                </div>
+            </div>
+
+            <div class="bg-gray-100 px-6 py-3 flex justify-between items-center border-t">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-bold text-gray-500">Total: <span id="modal-student-count">0</span> Siswa</span>
+                    <button onclick="resetStudentTurns()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-3 py-2 rounded-lg text-xs font-extrabold">↻ Reset Giliran</button>
+                </div>
+                <button onclick="playSFX('click'); closeStudentsModal()" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold">
+                    Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODAL MISI SOAL ================= -->
+    <div id="mission-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-bubu-cream w-full max-w-4xl max-h-[92vh] rounded-3xl border-8 border-yellow-300 shadow-2xl flex flex-col overflow-hidden relative animate-bounce-in">
+            
+            <div id="modal-header-bg" class="bg-gradient-to-r from-amber-400 to-amber-500 text-white px-6 py-3 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span id="modal-icon" class="text-3xl">🍩</span>
+                    <div>
+                        <h2 id="modal-title" class="text-xl md:text-2xl font-bold leading-tight">Misi 1: Donat Cokelat</h2>
+                        <p id="modal-subtitle" class="text-xs text-amber-100 font-medium">Susunlah gambar pada papan polamu lalu jawab pertanyaannya!</p>
+                    </div>
+                </div>
+                <button onclick="playSFX('click'); closeMissionModal()" class="w-9 h-9 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center font-bold text-lg transition">
+                    ✕
+                </button>
+            </div>
+
+            <div class="mission-content p-3 md:p-5 overflow-y-auto space-y-4 flex-1">
+                <!-- Tampilan Pola Soal -->
+                <div class="bg-white rounded-2xl p-3 border-2 border-amber-200 shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
+                            👀 Tampilan Pola Soal di Layar (Pola 1 - Pola 4)
+                        </span>
+                        <span class="text-xs font-semibold text-gray-500 hidden sm:inline">Analisislah perubahan tiap tahap!</span>
+                    </div>
+
+                    <div id="pattern-container" class="grid grid-cols-4 gap-2 bg-amber-50/50 p-2 md:p-3 rounded-xl border border-dashed border-amber-300 min-h-[120px] items-stretch">
+                    </div>
+                </div>
+
+                <!-- Pertanyaan Misi -->
+                <div class="bg-amber-100/70 rounded-2xl p-3 border-2 border-amber-300 space-y-2">
+                    <h3 class="text-sm md:text-base font-bold text-amber-900 flex items-center gap-2">
+                        <span>📝</span> Pertanyaan Misi untuk Diskusi Siswa:
+                    </h3>
+                    <div class="question-grid grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <!-- Pertanyaan 1 -->
+                        <div class="question-card bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
+                            <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded w-fit mb-1">Pertanyaan 1</span>
+                            <p id="q1-text" class="text-xs font-bold text-gray-800"></p>
+                            <div id="q1-options" class="grid grid-cols-2 gap-1.5 mt-2">
+                                <button type="button" onclick="checkRuleOption(2)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">A. +2</button>
+                                <button type="button" onclick="checkRuleOption(3)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">B. +3</button>
+                                <button type="button" onclick="checkRuleOption(4)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">C. +4</button>
+                                <button type="button" onclick="checkRuleOption(-2)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">D. −2</button>
+                                <button type="button" onclick="checkRuleOption(-3)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">E. −3</button>
+                                <button type="button" onclick="checkRuleOption(-4)" class="rule-option bg-amber-50 border border-amber-300 rounded-lg px-2 py-1.5 text-xs font-extrabold hover:bg-amber-200">F. −4</button>
+                            </div>
+                            <p id="q1-feedback" class="text-xs font-bold mt-1" aria-live="polite"></p>
+                        </div>
+
+                        <!-- Pertanyaan 2 (Ditambah Tombol Jawaban Visual) -->
+                        <div class="question-card bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded w-fit mb-1">Pertanyaan 2</span>
+                                <p id="q2-text" class="text-xs font-bold text-gray-800"></p>
+                            </div>
+                            <div class="mt-2 space-y-1.5">
+                                <button type="button" onclick="revealQ2Answer()" id="reveal-q2-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-extrabold py-1.5 px-2 rounded-lg shadow-sm transition flex items-center justify-center gap-1">
+                                    <span>🔍 Cek Jawaban Pola 4</span>
+                                </button>
+                                <div id="q2-answer-display" class="hidden bg-emerald-50 border border-emerald-300 p-2 rounded-lg text-center space-y-1 animate-bounce-in">
+                                    <p class="text-xs font-extrabold text-emerald-800">
+                                        Jawaban: <span id="q2-ans-num" class="text-sm underline">0</span> <span id="q2-ans-item">item</span>! 🎉
+                                    </p>
+                                    <div id="q2-ans-visual" class="flex flex-wrap items-center justify-center gap-1 max-h-20 overflow-y-auto p-1 bg-white rounded border border-emerald-100">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pertanyaan 3 -->
+                        <div class="question-card bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm flex flex-col justify-between">
+                            <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded w-fit mb-1">Pertanyaan 3</span>
+                            <p id="q3-text" class="text-xs font-bold text-gray-800"></p>
+                            <div id="q3-options" class="grid grid-cols-2 gap-1.5 mt-2">
+                                <button type="button" onclick="checkPatternType('membesar')" class="type-option bg-emerald-50 border-2 border-emerald-300 text-emerald-800 rounded-lg px-2 py-2 text-xs font-extrabold hover:bg-emerald-100">⬆️ Membesar</button>
+                                <button type="button" onclick="checkPatternType('mengecil')" class="type-option bg-rose-50 border-2 border-rose-300 text-rose-800 rounded-lg px-2 py-2 text-xs font-extrabold hover:bg-rose-100">⬇️ Mengecil</button>
+                            </div>
+                            <p id="q3-feedback" class="text-xs font-bold mt-1" aria-live="polite"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SPINNER WHEEL FOR PRESENTERS -->
+                <div class="spinner-panel bg-white rounded-2xl p-3 border-2 border-indigo-200 shadow-sm flex flex-col md:flex-row items-center gap-3">
+                    <div class="spinner-wheel relative w-36 h-36 flex-shrink-0">
+                        <canvas id="wheel-canvas" width="144" height="144" class="rounded-full"></canvas>
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 text-xl text-red-600 drop-shadow">▼</div>
+                    </div>
+
+                    <div class="flex-1 text-center md:text-left space-y-1.5 w-full">
+                        <div class="flex items-center justify-center md:justify-start gap-2">
+                            <span class="text-xs font-bold text-indigo-800 bg-indigo-100 px-3 py-1 rounded-full">
+                                🎯 Spinner Pemanggil Presenter
+                            </span>
+                            <button onclick="playSFX('click'); openStudentsModal()" class="text-xs text-indigo-600 underline font-bold hover:text-indigo-800">
+                                (Kelola Siswa)
+                            </button>
+                        </div>
+                        <p class="text-[11px] md:text-xs text-gray-600">Putar roda untuk memilih siswa yang akan maju memperagakan di depan kelas!</p>
+                        
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
+                            <button onclick="spinWheel()" id="spin-btn" class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-extrabold px-4 py-2 rounded-xl shadow-md transition transform active:scale-95 flex items-center gap-2 text-xs md:text-sm">
+                                <i class="fas fa-sync-alt"></i> Putar Spinner Nama
+                            </button>
+                            <div id="selected-student-box" class="hidden bg-yellow-100 border-2 border-yellow-400 px-3 py-1.5 rounded-xl text-yellow-900 font-extrabold text-xs md:text-sm animate-pulse">
+                                🎉 Giliran: <span id="student-name-display">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KUNCI JAWABAN -->
+                <div class="border-t border-amber-200 pt-2">
+                    <button onclick="toggleAnswerKey()" id="toggle-key-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2 text-xs md:text-sm">
+                        <i class="fas fa-key"></i> <span id="key-btn-text">Tampilkan Kunci Jawaban Lengkap</span>
+                    </button>
+
+                    <div id="answer-key-box" class="hidden mt-2 bg-emerald-50 rounded-2xl p-3 border-2 border-emerald-300 space-y-2">
+                        <h4 class="font-bold text-emerald-900 text-xs md:text-sm flex items-center gap-2">
+                            <span>✅</span> Kunci Jawaban Misi:
+                        </h4>
+                        <div class="space-y-1.5 text-xs text-emerald-950">
+                            <div class="p-2 bg-white rounded-lg border border-emerald-200">
+                                <strong>Jawaban 1:</strong> <span id="ans-1-text"></span>
+                            </div>
+                            <div class="p-2 bg-white rounded-lg border border-emerald-200">
+                                <strong>Jawaban 2:</strong> <span id="ans-2-text"></span>
+                            </div>
+                            <div class="p-2 bg-white rounded-lg border border-emerald-200">
+                                <strong>Jawaban 3:</strong> <span id="ans-3-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mission-footer bg-gray-100 px-6 py-3 flex justify-between items-center border-t border-gray-200">
+                <button onclick="playSFX('click'); closeMissionModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-xl text-xs font-bold transition">
+                    Tutup
+                </button>
+                <button onclick="nextMissionFromModal()" id="next-step-btn" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs md:text-sm font-extrabold shadow transition flex items-center gap-2">
+                    <span>Jalan ke Misi Berikutnya</span> <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CELEBRATION FINISH MODAL ================= -->
+    <div id="finish-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-lg w-full rounded-3xl border-8 border-yellow-300 shadow-2xl p-6 text-center space-y-5 animate-bounce-in">
+            <div class="text-6xl animate-bounce">🏆</div>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-amber-900">HEBAT! PETUALANGAN SELESAI!</h2>
+            <p class="text-sm text-gray-600 font-medium">
+                Bubu berhasil menyelesaikan semua tantangan pola di dapur berkat bantuanmu dan teman-teman!
+            </p>
+            
+            <div class="bg-yellow-50 p-4 rounded-2xl border-2 border-yellow-200 text-left text-xs md:text-sm space-y-2">
+                <p class="font-bold text-amber-900">🌟 Ringkasan Capaian Pembelajaran:</p>
+                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                    <li>Memahami Pola Membesar (Penjumlahan)</li>
+                    <li>Memahami Pola Mengecil (Pengurangan)</li>
+                    <li>Mampu menentukan aturan dan suku berikutnya pada pola</li>
+                </ul>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                <button onclick="playSFX('click'); resetToStart()" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-3 rounded-xl font-bold shadow-md transition text-xs md:text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-redo"></i> Main Lagi dari Start
+                </button>
+                <button onclick="playSFX('click'); openCanvaModal()" class="bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500 text-white px-5 py-3 rounded-xl font-bold shadow-md transition text-xs md:text-sm flex items-center justify-center gap-2">
+                    <i class="fas fa-external-link-alt"></i> Kembali ke Canva
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= CANVA LINK MODAL ================= -->
+    <div id="canva-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-md w-full rounded-3xl border-4 border-teal-400 shadow-2xl p-6 text-center space-y-4">
+            <div class="text-5xl text-teal-500">🎨</div>
+            <h3 class="text-xl font-bold text-gray-800">Buka Presentasi Canva</h3>
+            <p class="text-xs text-gray-600">
+                Tempel tautan presentasi Canva kamu jika ingin membuka presentasinya di tab baru.
+            </p>
+            
+            <input type="text" id="canva-url-input" placeholder="https://www.canva.com/design/..." 
+                   class="w-full px-4 py-2 border-2 border-gray-300 rounded-xl text-xs focus:border-teal-500 outline-none">
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="playSFX('click'); closeCanvaModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-xs font-bold">
+                    Batal
+                </button>
+                <button onclick="playSFX('click'); redirectToCanva()" class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl text-xs font-bold">
+                    Buka Canva
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE LOGIC & AUDIO SYNTHESIS SCRIPT -->
+    <script>
+        let audioCtx = null;
+        let isMusicPlaying = false;
+        let musicTimer = null;
+        let currentNoteIndex = 0;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        const BGM_MELODY = [
+            { note: 523.25, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 783.99, dur: 0.25 },
+            { note: 1046.50, dur: 0.35 },
+            { note: 880.00, dur: 0.25 },
+            { note: 783.99, dur: 0.25 },
+            { note: 659.25, dur: 0.35 },
+            { note: 587.33, dur: 0.25 },
+            { note: 659.25, dur: 0.25 },
+            { note: 783.99, dur: 0.35 },
+            { note: 659.25, dur: 0.25 },
+            { note: 523.25, dur: 0.45 }
+        ];
+
+        function playNextBGMNote() {
+            if (!isMusicPlaying || !audioCtx) return;
+            const now = audioCtx.currentTime;
+            const item = BGM_MELODY[currentNoteIndex];
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(item.note, now);
+
+            gain.gain.setValueAtTime(0.035, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + item.dur - 0.05);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + item.dur);
+
+            currentNoteIndex = (currentNoteIndex + 1) % BGM_MELODY.length;
+            musicTimer = setTimeout(playNextBGMNote, item.dur * 1000);
+        }
+
+        function startBGM() {
+            initAudio();
+            if (!isMusicPlaying) {
+                isMusicPlaying = true;
+                currentNoteIndex = 0;
+                playNextBGMNote();
+                updateMusicUI();
+            }
+        }
+
+        function stopBGM() {
+            isMusicPlaying = false;
+            if (musicTimer) clearTimeout(musicTimer);
+            updateMusicUI();
+        }
+
+        function toggleMusic() {
+            playSFX('click');
+            if (isMusicPlaying) {
+                stopBGM();
+            } else {
+                startBGM();
+            }
+        }
+
+        function updateMusicUI() {
+            const icon = document.getElementById('music-icon');
+            const text = document.getElementById('music-text');
+            const btn = document.getElementById('music-btn');
+
+            if (isMusicPlaying) {
+                icon.innerText = '🔊';
+                text.innerText = 'Musik On';
+                btn.className = 'bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5';
+            } else {
+                icon.innerText = '🔇';
+                text.innerText = 'Musik Off';
+                btn.className = 'bg-gray-400 hover:bg-gray-500 text-white px-3 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md transition transform hover:scale-105 flex items-center gap-1.5';
+            }
+        }
+
+        function startAdventureWithMusic() {
+            playSFX('click');
+            startBGM();
+            closeMenuAwal();
+        }
+
+        function playSFX(type) {
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } 
+                else if (type === 'step') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(250, now);
+                    osc.frequency.exponentialRampToValueAtTime(500, now + 0.12);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } 
+                else if (type === 'tick') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.04);
+                } 
+                else if (type === 'winner') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.25);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.1);
+                        osc.stop(now + idx * 0.1 + 0.25);
+                    });
+                }
+                else if (type === 'key') {
+                    const notes = [440, 554.37, 659.25];
+                    notes.forEach((freq, idx) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + idx * 0.08);
+                        osc.stop(now + idx * 0.08 + 0.2);
+                    });
+                }
+                else if (type === 'fanfare') {
+                    const melody = [
+                        { f: 523.25, d: 0.15 }, { f: 659.25, d: 0.15 }, { f: 783.99, d: 0.15 },
+                        { f: 1046.50, d: 0.4 }
+                    ];
+                    let delay = 0;
+                    melody.forEach((item) => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(item.f, now + delay);
+                        gain.gain.setValueAtTime(0.25, now + delay);
+                        gain.gain.exponentialRampToValueAtTime(0.01, now + delay + item.d);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(now + delay);
+                        osc.stop(now + delay + item.d);
+                        delay += item.d + 0.03;
+                    });
+                }
+            } catch (e) {
+                console.log('Audio init on user interaction');
+            }
+        }
+
+        const NODE_ORDER = ['start', 'misi1', 'misi2', 'misi3', 'misi4', 'finish'];
+        
+        const MISSION_DATA = {
+            'misi1': {
+                title: "Misi 1: Donat Cokelat",
+                subtitle: "Amati pola gambar donat topping cokelat meses di bawah ini!",
+                icon: "🍩", itemEmoji: "🍩",
+                headerGradient: "from-amber-500 to-amber-600",
+                counts: [3, 6, 9],
+                q1: "Apa aturan perubahan jumlah donat?",
+                q2: "Berapa jumlah donat pada Pola 4? Jelaskan caramu.",
+                q3: "Pola gambar donat ini termasuk pola membesar atau mengecil?",
+                correctRule: 3, patternType: "membesar",
+                p4Count: 12,
+                ans1: "Aturan +3 (bertambah 3 donat setiap langkah)",
+                ans2: "Pola 4 berjumlah 12 donat (9 + 3 = 12 donat)",
+                ans3: "Pola membesar karena jumlah donat bertambah",
+                nextMission: 'misi2'
+            },
+            'misi2': {
+                title: "Misi 2: Stroberi Ceria",
+                subtitle: "Amati pola gambar stroberi segar di bawah ini!",
+                icon: "🍓", itemEmoji: "🍓",
+                headerGradient: "from-rose-500 to-rose-600",
+                counts: [9, 7, 5],
+                q1: "Apa aturan perubahan jumlah stroberi?",
+                q2: "Berapa jumlah stroberi pada Pola 4? Jelaskan caramu.",
+                q3: "Pola gambar stroberi ini termasuk pola membesar atau mengecil?",
+                correctRule: -2, patternType: "mengecil",
+                p4Count: 3,
+                ans1: "Aturan −2 (berkurang 2 stroberi setiap langkah)",
+                ans2: "Pola 4 berjumlah 3 stroberi (5 − 2 = 3 stroberi)",
+                ans3: "Pola mengecil karena jumlah stroberi berkurang",
+                nextMission: 'misi3'
+            },
+            'misi3': {
+                title: "Misi 3: Stroberi Manis",
+                subtitle: "Amati pola gambar stroberi manis di bawah ini!",
+                icon: "🍓", itemEmoji: "🍓",
+                headerGradient: "from-pink-500 to-pink-600",
+                counts: [2, 6, 10],
+                q1: "Apa aturan perubahan jumlah stroberi?",
+                q2: "Berapa jumlah stroberi pada Pola 4? Jelaskan caramu.",
+                q3: "Pola gambar stroberi ini termasuk pola membesar atau mengecil?",
+                correctRule: 4, patternType: "membesar",
+                p4Count: 14,
+                ans1: "Aturan +4 (bertambah 4 stroberi setiap langkah)",
+                ans2: "Pola 4 berjumlah 14 stroberi (10 + 4 = 14 stroberi)",
+                ans3: "Pola membesar karena jumlah stroberi bertambah",
+                nextMission: 'misi4'
+            },
+            'misi4': {
+                title: "Misi 4: Donat Lezat",
+                subtitle: "Amati pola gambar donat cokelat di bawah ini!",
+                icon: "🍩", itemEmoji: "🍩",
+                headerGradient: "from-amber-600 to-amber-700",
+                counts: [12, 9, 6],
+                q1: "Apa aturan perubahan jumlah donat?",
+                q2: "Berapa jumlah donat pada Pola 4? Jelaskan caramu.",
+                q3: "Pola gambar donat ini termasuk pola membesar atau mengecil?",
+                correctRule: -3, patternType: "mengecil",
+                p4Count: 3,
+                ans1: "Aturan −3 (berkurang 3 donat setiap langkah)",
+                ans2: "Pola 4 berjumlah 3 donat (6 − 3 = 3 donat)",
+                ans3: "Pola mengecil karena jumlah donat berkurang",
+                nextMission: 'finish'
+            }
+        };
+
+        let STUDENTS = Array.from({ length: 28 }, (_, i) => `Siswa ${i + 1}`);
+
+        let currentIndex = 0;
+        let movementToken = 0;
+        let isBubuMoving = false;
+        let currentMission = null;
+        let isSpinning = false;
+        let PICKED_STUDENTS = [];
+
+        function getAvailableStudents() { return STUDENTS.filter(name => !PICKED_STUDENTS.includes(name)); }
+
+        window.onload = function() {
+            renderStartStudentPills();
+            drawWheel();
+        };
+
+        function openMenuAwal() {
+            renderStartStudentPills();
+            document.getElementById('menu-awal-modal').classList.remove('hidden');
+        }
+
+        function closeMenuAwal() {
+            document.getElementById('menu-awal-modal').classList.add('hidden');
+        }
+
+        function renderStartStudentPills() {
+            const container = document.getElementById('start-student-list');
+            document.getElementById('start-student-count').innerText = STUDENTS.length;
+
+            if (STUDENTS.length === 0) {
+                container.innerHTML = `<span class="text-xs text-gray-400 font-bold p-1">Belum ada siswa. Tambahkan di atas!</span>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            STUDENTS.forEach((name, index) => {
+                const pill = document.createElement('span');
+                pill.className = 'bg-indigo-100 text-indigo-900 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm';
+                pill.innerHTML = `<span>${name}</span> <button onclick="removeStudent(${index})" class="text-indigo-400 hover:text-red-500 font-black">✕</button>`;
+                container.appendChild(pill);
+            });
+            drawWheel();
+        }
+
+        function addStudentFromStart() {
+            const input = document.getElementById('start-new-student-input');
+            const name = input.value.trim();
+            if (name) {
+                STUDENTS.push(name);
+                PICKED_STUDENTS = PICKED_STUDENTS.filter(n => STUDENTS.includes(n));
+                input.value = '';
+                renderStartStudentPills();
+            }
+        }
+
+        function removeStudent(index) {
+            playSFX('click');
+            const removedName = STUDENTS[index];
+            STUDENTS.splice(index, 1);
+            PICKED_STUDENTS = PICKED_STUDENTS.filter(n => n !== removedName);
+            renderStartStudentPills();
+            renderStudentsModalList();
+        }
+
+        function resetStudentTurns() {
+            PICKED_STUDENTS = [];
+            drawWheel();
+            document.getElementById('selected-student-box').classList.add('hidden');
+            const spinButton = document.getElementById('spin-btn');
+            if (spinButton) spinButton.disabled = false;
+            alert('Giliran siswa sudah direset. Semua siswa bisa terpilih kembali.');
+        }
+
+        function openStudentsModal() {
+            renderStudentsModalList();
+            document.getElementById('students-modal').classList.remove('hidden');
+        }
+
+        function closeStudentsModal() {
+            document.getElementById('students-modal').classList.add('hidden');
+        }
+
+        function renderStudentsModalList() {
+            const container = document.getElementById('full-student-list');
+            document.getElementById('modal-student-count').innerText = STUDENTS.length;
+
+            if (STUDENTS.length === 0) {
+                container.innerHTML = `<div class="text-center py-4 text-xs font-bold text-gray-400">Belum ada nama siswa.</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            STUDENTS.forEach((name, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between bg-white px-3 py-2 rounded-xl border border-gray-200 shadow-sm';
+                item.innerHTML = `
+                    <span class="text-xs font-bold text-gray-700">${index + 1}. ${name}</span>
+                    <button onclick="removeStudent(${index})" class="text-red-500 hover:text-red-700 text-xs font-bold"><i class="fas fa-trash"></i></button>`;
+                container.appendChild(item);
+            });
+            drawWheel();
+        }
+
+        function addStudentFromModal() {
+            const input = document.getElementById('edit-student-input');
+            const name = input.value.trim();
+            if (name) {
+                STUDENTS.push(name);
+                PICKED_STUDENTS = PICKED_STUDENTS.filter(n => STUDENTS.includes(n));
+                input.value = '';
+                renderStudentsModalList();
+            }
+        }
+
+        function clickNode(nodeId) {
+            const targetIdx = NODE_ORDER.indexOf(nodeId);
+            if (targetIdx === -1) return;
+            
+            closeMissionModal();
+
+            if (isBubuMoving) {
+                movementToken += 1;
+            }
+            playSFX('click');
+            moveBubuStepByStep(targetIdx);
+        }
+
+        function moveBubuStepByStep(targetIdx, token = null) {
+            if (token === null) {
+                movementToken += 1;
+                token = movementToken;
+                isBubuMoving = true;
+            }
+            if (token !== movementToken) return;
+
+            if (currentIndex === targetIdx) {
+                isBubuMoving = false;
+                triggerNodeAction(NODE_ORDER[currentIndex]);
+                return;
+            }
+
+            const step = targetIdx > currentIndex ? 1 : -1;
+            currentIndex += step;
+
+            playSFX('step');
+
+            const currentNodeId = NODE_ORDER[currentIndex];
+            const nodeElem = document.getElementById(`node-${currentNodeId}`);
+            const bubuElem = document.getElementById('bubu-character');
+
+            if (!nodeElem || !bubuElem) {
+                isBubuMoving = false;
+                return;
+            }
+
+            bubuElem.style.left = nodeElem.style.left;
+            bubuElem.style.top = nodeElem.style.top;
+
+            const labels = {
+                'start': 'START',
+                'misi1': 'Misi 1: Donat Cokelat',
+                'misi2': 'Misi 2: Stroberi Ceria',
+                'misi3': 'Misi 3: Stroberi Manis',
+                'misi4': 'Misi 4: Donat Lezat',
+                'finish': 'FINISH'
+            };
+            document.getElementById('current-pos-label').innerText = labels[currentNodeId];
+
+            setTimeout(() => {
+                if (token !== movementToken) return;
+                if (currentIndex !== targetIdx) {
+                    moveBubuStepByStep(targetIdx, token);
+                } else {
+                    isBubuMoving = false;
+                    triggerNodeAction(currentNodeId);
+                }
+            }, 1100);
+        }
+
+        function triggerNodeAction(nodeId) {
+            if (nodeId === 'finish') {
+                triggerFinishCelebration();
+            } else if (nodeId !== 'start') {
+                openMissionModal(nodeId);
+            }
+        }
+
+        function resetToStart() {
+            movementToken += 1;
+            isBubuMoving = false;
+            closeMissionModal();
+            document.getElementById('finish-modal').classList.add('hidden');
+            clickNode('start');
+        }
+
+        function openMissionModal(missionKey) {
+            currentMission = missionKey;
+            const data = MISSION_DATA[missionKey];
+
+            document.getElementById('modal-title').innerText = data.title;
+            document.getElementById('modal-subtitle').innerText = data.subtitle;
+            document.getElementById('modal-icon').innerText = data.icon;
+            document.getElementById('modal-header-bg').className = `bg-gradient-to-r ${data.headerGradient} text-white px-6 py-3 flex justify-between items-center`;
+
+            document.getElementById('q1-text').innerText = data.q1;
+            document.getElementById('q2-text').innerText = data.q2;
+            document.getElementById('q3-text').innerText = data.q3;
+            document.getElementById('q1-feedback').innerText = '';
+            document.getElementById('q3-feedback').innerText = '';
+            document.querySelectorAll('.rule-option, .type-option').forEach(btn => btn.classList.remove('ring-2','ring-emerald-500','ring-rose-500'));
+
+            // Reset Tampilan Jawaban Pertanyaan 2
+            document.getElementById('q2-answer-display').classList.add('hidden');
+            document.getElementById('reveal-q2-btn').classList.remove('hidden');
+
+            const patternContainer = document.getElementById('pattern-container');
+            patternContainer.innerHTML = '';
+
+            data.counts.forEach((count, idx) => {
+                let itemsHTML = '';
+                for (let i = 0; i < count; i++) {
+                    itemsHTML += `<span class="pattern-item" aria-hidden="true">${data.itemEmoji}</span>`;
+                }
+
+                patternContainer.innerHTML += `
+                    <div class="pattern-card bg-white rounded-xl border border-amber-200 text-center shadow-sm">
+                        <span class="pattern-label">Pola ${idx + 1}</span>
+                        <div class="pattern-pictures" aria-label="${count} gambar ${data.itemEmoji === '🍩' ? 'donat' : 'stroberi'}">${itemsHTML}</div>
+                    </div>`;
+            });
+
+            patternContainer.innerHTML += `
+                <div id="p4-card-box" class="pattern-card pattern-missing bg-yellow-100 rounded-xl border-2 border-dashed border-yellow-400 text-center">
+                    <span class="pattern-label">Pola 4</span>
+                    <div class="pattern-question">❓</div>
+                    <span class="pattern-hint">Lengkapi!</span>
+                </div>`;
+
+            document.getElementById('answer-key-box').classList.add('hidden');
+            document.getElementById('key-btn-text').innerText = "Tampilkan Kunci Jawaban Lengkap";
+            document.getElementById('selected-student-box').classList.add('hidden');
+            document.getElementById('spin-btn').disabled = false;
+            
+            const keyButton = document.getElementById('toggle-key-btn');
+            keyButton.disabled = false;
+            keyButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            keyButton.innerHTML = '<i class="fas fa-key"></i> <span id="key-btn-text">Tampilkan Kunci Jawaban Lengkap</span>';
+
+            document.getElementById('ans-1-text').innerText = data.ans1;
+            document.getElementById('ans-2-text').innerText = data.ans2;
+            document.getElementById('ans-3-text').innerText = data.ans3;
+
+            document.getElementById('mission-modal').classList.remove('hidden');
+        }
+
+        // FITUR BARU: Menampilkan Jawaban Pertanyaan 2 Beserta Gambar Donat/Stroberi
+        function revealQ2Answer() {
+            if (!currentMission || !MISSION_DATA[currentMission]) return;
+            playSFX('winner');
+            const data = MISSION_DATA[currentMission];
+
+            // Tampilkan kotak info jawaban di pertanyaan 2
+            const ansDisplay = document.getElementById('q2-answer-display');
+            document.getElementById('q2-ans-num').innerText = data.p4Count;
+            document.getElementById('q2-ans-item').innerText = data.itemEmoji === '🍩' ? 'donat' : 'stroberi';
+
+            // Generate gambar visual di dalam kartu Pertanyaan 2
+            const visualContainer = document.getElementById('q2-ans-visual');
+            visualContainer.innerHTML = '';
+            for (let i = 0; i < data.p4Count; i++) {
+                visualContainer.innerHTML += `<span class="text-base">${data.itemEmoji}</span>`;
+            }
+            ansDisplay.classList.remove('hidden');
+
+            // Sekaligus update tampilan Pola 4 di papan atas
+            const p4Box = document.getElementById('p4-card-box');
+            if (p4Box) {
+                p4Box.className = "pattern-card bg-emerald-50 rounded-xl border-2 border-emerald-400 text-center animate-bounce-in shadow-sm";
+                let p4ItemsHTML = '';
+                for (let i = 0; i < data.p4Count; i++) {
+                    p4ItemsHTML += `<span class="pattern-item" aria-hidden="true">${data.itemEmoji}</span>`;
+                }
+                p4Box.innerHTML = `
+                    <span class="pattern-label text-emerald-700 font-extrabold">Pola 4 (${data.p4Count})</span>
+                    <div class="pattern-pictures">${p4ItemsHTML}</div>
+                `;
+            }
+        }
+
+        function checkRuleOption(value) {
+            if (!currentMission || !MISSION_DATA[currentMission]) return;
+            const data = MISSION_DATA[currentMission];
+            const feedback = document.getElementById('q1-feedback');
+            document.querySelectorAll('.rule-option').forEach(btn => btn.classList.remove('ring-2','ring-emerald-500','ring-rose-500'));
+            const selected = Array.from(document.querySelectorAll('.rule-option')).find(btn => {
+                const label = btn.textContent;
+                return (value === 2 && label.includes('+2')) || (value === 3 && label.includes('+3')) || (value === 4 && label.includes('+4')) || (value === -2 && label.includes('−2')) || (value === -3 && label.includes('−3')) || (value === -4 && label.includes('−4'));
+            });
+            if (selected) selected.classList.add('ring-2', value === data.correctRule ? 'ring-emerald-500' : 'ring-rose-500');
+            if (value === data.correctRule) {
+                feedback.textContent = 'Benar! Kamu menemukan aturan polanya. 🎉';
+                feedback.className = 'text-xs font-bold mt-1 text-emerald-700';
+                playSFX('winner');
+            } else {
+                feedback.textContent = 'Belum tepat. Hitung perubahan gambar dari satu pola ke pola berikutnya, ya!';
+                feedback.className = 'text-xs font-bold mt-1 text-rose-700';
+                playSFX('click');
+            }
+        }
+
+        function checkPatternType(value) {
+            if (!currentMission || !MISSION_DATA[currentMission]) return;
+            const data = MISSION_DATA[currentMission];
+            const feedback = document.getElementById('q3-feedback');
+            document.querySelectorAll('.type-option').forEach(btn => btn.classList.remove('ring-2','ring-emerald-500','ring-rose-500'));
+            const selected = Array.from(document.querySelectorAll('.type-option')).find(btn => btn.textContent.toLowerCase().includes(value));
+            if (selected) selected.classList.add('ring-2', value === data.patternType ? 'ring-emerald-500' : 'ring-rose-500');
+            if (value === data.patternType) {
+                feedback.textContent = value === 'membesar' ? 'Benar! Jumlah gambar semakin banyak. 🎉' : 'Benar! Jumlah gambar semakin sedikit. 🎉';
+                feedback.className = 'text-xs font-bold mt-1 text-emerald-700';
+                playSFX('winner');
+            } else {
+                feedback.textContent = 'Coba amati lagi: jumlah gambarnya bertambah atau berkurang?';
+                feedback.className = 'text-xs font-bold mt-1 text-rose-700';
+                playSFX('click');
+            }
+        }
+
+        function closeMissionModal() {
+            document.getElementById('mission-modal').classList.add('hidden');
+            currentMission = null;
+        }
+
+        function toggleAnswerKey() {
+            const keyBtn = document.getElementById('toggle-key-btn');
+            if (keyBtn.disabled) return;
+            playSFX('key');
+            const keyBox = document.getElementById('answer-key-box');
+            const btnText = document.getElementById('key-btn-text');
+            if (keyBox.classList.contains('hidden')) {
+                keyBox.classList.remove('hidden');
+                btnText.innerText = "Sembunyikan Kunci Jawaban";
+            } else {
+                keyBox.classList.add('hidden');
+                btnText.innerText = "Tampilkan Kunci Jawaban Lengkap";
+            }
+        }
+
+        function nextMissionFromModal() {
+            playSFX('click');
+            const missionToAdvanceFrom = currentMission;
+            closeMissionModal();
+            if (missionToAdvanceFrom && MISSION_DATA[missionToAdvanceFrom]) {
+                const nextNode = MISSION_DATA[missionToAdvanceFrom].nextMission;
+                clickNode(nextNode);
+            }
+        }
+
+        const canvas = document.getElementById('wheel-canvas');
+        const ctx = canvas.getContext('2d');
+        let currentAngle = 0;
+
+        function drawWheel() {
+            const availableStudents = getAvailableStudents();
+            const numSegments = availableStudents.length;
+            const radius = canvas.width / 2;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (numSegments === 0) {
+                ctx.fillStyle = "#E5E7EB";
+                ctx.beginPath();
+                ctx.arc(radius, radius, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#073B4C';
+                ctx.font = 'bold 11px Quicksand';
+                ctx.textAlign = 'center';
+                ctx.fillText('Giliran habis', radius, radius + 30);
+                return;
+            }
+
+            const arc = (2 * Math.PI) / numSegments;
+            availableStudents.forEach((student, i) => {
+                const angle = currentAngle + i * arc;
+                ctx.beginPath();
+                ctx.fillStyle = i % 2 === 0 ? '#FF85A1' : (i % 3 === 0 ? '#FFD166' : '#A2D2FF');
+                ctx.moveTo(radius, radius);
+                ctx.arc(radius, radius, radius, angle, angle + arc);
+                ctx.lineTo(radius, radius);
+                ctx.fill();
+
+                ctx.save();
+                ctx.translate(radius, radius);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#073B4C";
+                ctx.font = "bold 9px Quicksand";
+                ctx.fillText(student.length > 7 ? student.substring(0,6)+'..' : student, radius - 8, 3);
+                ctx.restore();
+            });
+
+            ctx.beginPath();
+            ctx.arc(radius, radius, 14, 0, 2 * Math.PI);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#073B4C';
+            ctx.stroke();
+        }
+
+        function spinWheel() {
+            playSFX('click');
+            const availableStudents = getAvailableStudents();
+            if (isSpinning) return;
+            if (availableStudents.length === 0) {
+                alert('Semua siswa sudah mendapat giliran. Buka menu siswa lalu tekan Reset Giliran untuk memulai putaran baru.');
+                return;
+            }
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+
+            const spinAngle = Math.floor(Math.random() * 360) + 1440;
+            let duration = 3000;
+            let start = null;
+            let lastTickAngle = 0;
+
+            function animateSpin(timestamp) {
+                if (!start) start = timestamp;
+                let progress = timestamp - start;
+                let easeOut = Math.pow(1 - progress / duration, 3);
+                currentAngle = (1 - easeOut) * (spinAngle * Math.PI / 180);
+
+                if (Math.abs(currentAngle - lastTickAngle) > 0.25) {
+                    playSFX('tick');
+                    lastTickAngle = currentAngle;
+                }
+
+                drawWheel();
+
+                if (progress < duration) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('spin-btn').disabled = false;
+
+                    const remainingStudents = getAvailableStudents();
+                    if (remainingStudents.length === 0) {
+                        drawWheel();
+                        document.getElementById('selected-student-box').classList.add('hidden');
+                        return;
+                    }
+                    const arc = (2 * Math.PI) / remainingStudents.length;
+                    let normalizedAngle = (3 * Math.PI / 2 - currentAngle) % (2 * Math.PI);
+                    if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+                    
+                    const index = Math.min(remainingStudents.length - 1, Math.floor(normalizedAngle / arc));
+                    const selectedStudent = remainingStudents[index];
+                    PICKED_STUDENTS.push(selectedStudent);
+                    document.getElementById('student-name-display').innerText = selectedStudent;
+                    drawWheel();
+                    document.getElementById('selected-student-box').classList.remove('hidden');
+
+                    playSFX('winner');
+                }
+            }
+            requestAnimationFrame(animateSpin);
+        }
+
+        function triggerFinishCelebration() {
+            playSFX('fanfare');
+            document.getElementById('finish-modal').classList.remove('hidden');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 110, spread: 80, origin: { y: 0.6 } });
+            }
+        }
+
+        function openCanvaModal() { document.getElementById('canva-modal').classList.remove('hidden'); }
+        function closeCanvaModal() { document.getElementById('canva-modal').classList.add('hidden'); }
+        function redirectToCanva() {
+            const urlInput = document.getElementById('canva-url-input').value.trim();
+            if (!/^https:\/\//i.test(urlInput)) {
+                alert('Masukkan tautan lengkap yang diawali https://');
+                return;
+            }
+            window.open(urlInput, '_blank', 'noopener,noreferrer');
+            closeCanvaModal();
+        }
+    </script>
+</body>
+</html>
